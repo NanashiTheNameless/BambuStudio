@@ -332,7 +332,12 @@ bool Print::invalidate_state_by_config_options(const ConfigOptionResolver & /* n
             //BBS: when enable arc fitting, we must re-generate perimeter
             || opt_key == "enable_arc_fitting"
             || opt_key == "wall_sequence"
-            || opt_key == "z_direction_outwall_speed_continuous") {
+            || opt_key == "z_direction_outwall_speed_continuous"
+            || opt_key == "override_filament_scarf_seam_setting"
+            || opt_key == "seam_slope_type"
+            || opt_key == "seam_slope_start_height"
+            || opt_key == "seam_slope_gap"
+            || opt_key == "seam_slope_min_length") {
             osteps.emplace_back(posPerimeters);
             osteps.emplace_back(posInfill);
             osteps.emplace_back(posSupportMaterial);
@@ -1719,6 +1724,8 @@ void Print::process(std::unordered_map<std::string, long long>* slice_time, bool
                 return false;
             if (!model_volume1.supported_facets.equals(model_volume2.supported_facets))
                 return false;
+            if (!model_volume1.fuzzy_skin_facets.equals(model_volume2.fuzzy_skin_facets))
+                return false;
             if (!model_volume1.seam_facets.equals(model_volume2.seam_facets))
                 return false;
             if (!model_volume1.mmu_segmentation_facets.equals(model_volume2.mmu_segmentation_facets))
@@ -2463,6 +2470,47 @@ int Print::get_hrc_by_nozzle_type(const NozzleType&type)
     return 0;
 }
 
+std::vector<std::string> Print::get_incompatible_filaments_by_nozzle(const float nozzle_diameter, const std::optional<NozzleVolumeType> nozzle_volume_type)
+{
+    static std::map<std::string, std::map<std::string, std::vector<std::string>>> incompatible_filaments;
+    if(incompatible_filaments.empty()){
+        fs::path file_path = fs::path(resources_dir()) / "info" / "nozzle_incompatibles.json";
+        boost::nowide::ifstream in(file_path.string());
+        json j;
+        try {
+            j = json::parse(in);
+            for(auto& [volume_type, diameter_list] : j["incompatible_nozzles"].items()) {
+                for(auto& [diameter, filaments]: diameter_list.items()){
+                    incompatible_filaments[volume_type][diameter] = filaments.get<std::vector<std::string>>();
+                }
+            }
+        }
+        catch(const json::parse_error& err){
+            in.close();
+            BOOST_LOG_TRIVIAL(error) << __FUNCTION__ << ": parse " << file_path.string() << " got a nlohmann::detail::parse_error, reason = " << err.what();
+
+            incompatible_filaments[get_nozzle_volume_type_string(NozzleVolumeType::nvtHighFlow)] = {};
+            incompatible_filaments[get_nozzle_volume_type_string(NozzleVolumeType::nvtStandard)] = {};
+        }
+    }
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << nozzle_diameter;
+    std::string diameter_str = oss.str();
+
+    if(nozzle_volume_type.has_value()){
+        return incompatible_filaments[get_nozzle_volume_type_string(nozzle_volume_type.value())][diameter_str];
+    }
+
+    std::vector<std::string> incompatible_filaments_list;
+    for(auto& [volume_type, diameter_list] : incompatible_filaments){
+        auto iter = diameter_list.find(diameter_str);
+        if(iter != diameter_list.end()){
+            append(incompatible_filaments_list, iter->second);
+        }
+    }
+    return incompatible_filaments_list;
+}
+
 void Print::finalize_first_layer_convex_hull()
 {
     append(m_first_layer_convex_hull.points, m_skirt_convex_hull);
@@ -2510,6 +2558,10 @@ void Print::update_filament_maps_to_config(std::vector<int> f_maps)
     m_has_auto_filament_map_result = true;
 }
 
+void Print::apply_config_for_render(const DynamicConfig &config)
+{
+    m_config.apply(config);
+}
 
 std::vector<int> Print::get_filament_maps() const
 {
@@ -4214,6 +4266,7 @@ void WipeTowerData::construct_mesh(float width, float depth, float height, float
 {
     wipe_tower_mesh_data = WipeTowerMeshData{};
     float first_layer_height=0.08; //brim height
+    if (width < EPSILON || depth < EPSILON || height < EPSILON) return;
     if (!is_rib_wipe_tower) {
         wipe_tower_mesh_data->real_wipe_tower_mesh = make_cube(width, depth, height);
         wipe_tower_mesh_data->real_brim_mesh       = make_cube(width + 2 * brim_width, depth + 2 * brim_width, first_layer_height);
@@ -4223,12 +4276,31 @@ void WipeTowerData::construct_mesh(float width, float depth, float height, float
     } else {
         wipe_tower_mesh_data->real_wipe_tower_mesh = WipeTower::its_make_rib_tower(width, depth, height, rib_length, rib_width, fillet_wall);
         wipe_tower_mesh_data->bottom               = WipeTower::rib_section(width, depth, rib_length, rib_width, fillet_wall);
-        wipe_tower_mesh_data->bottom               = offset(wipe_tower_mesh_data->bottom, scaled(brim_width)).front();
+        auto brim_bottom                           = offset(wipe_tower_mesh_data->bottom, scaled(brim_width));
+        if (!brim_bottom.empty())
+            wipe_tower_mesh_data->bottom               = brim_bottom.front();
         wipe_tower_mesh_data->real_brim_mesh       = WipeTower::its_make_rib_brim(wipe_tower_mesh_data->bottom, first_layer_height);
         wipe_tower_mesh_data->real_wipe_tower_mesh.translate(Vec3f(rib_offset[0], rib_offset[1],0));
         wipe_tower_mesh_data->real_brim_mesh.translate(Vec3f(rib_offset[0], rib_offset[1], 0));
         wipe_tower_mesh_data->bottom.translate(scaled(Vec2f(rib_offset[0], rib_offset[1])));
     }
+}
+
+PrintRegion *PrintObjectRegions::FuzzySkinPaintedRegion::parent_print_object_region(const LayerRangeRegions &layer_range) const
+{
+    using FuzzySkinParentType = PrintObjectRegions::FuzzySkinPaintedRegion::ParentType;
+
+    if (this->parent_type == FuzzySkinParentType::PaintedRegion) {
+        return layer_range.painted_regions[this->parent].region;
+    }
+
+    assert(this->parent_type == FuzzySkinParentType::VolumeRegion);
+    return layer_range.volume_regions[this->parent].region;
+}
+
+int PrintObjectRegions::FuzzySkinPaintedRegion::parent_print_object_region_id(const LayerRangeRegions &layer_range) const
+{
+    return this->parent_print_object_region(layer_range)->print_object_region_id();
 }
 
 } // namespace Slic3r

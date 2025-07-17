@@ -769,6 +769,7 @@ namespace Slic3r {
             float filament_load_times;
             float filament_unload_times;
             float extruder_change_times;
+            float prepare_compensation_time;
 
             std::array<TimeMachine, static_cast<size_t>(PrintEstimatedStatistics::ETimeMode::Count)> machines;
 
@@ -1065,6 +1066,7 @@ namespace Slic3r {
         size_t m_last_default_color_id;
         bool m_detect_layer_based_on_tag {false};
         int m_seams_count;
+        bool m_measure_g29_time {false};
 #if ENABLE_GCODE_VIEWER_STATISTICS
         std::chrono::time_point<std::chrono::high_resolution_clock> m_start_time;
 #endif // ENABLE_GCODE_VIEWER_STATISTICS
@@ -1108,6 +1110,7 @@ namespace Slic3r {
                                               const std::vector<std::set<int>>& unprintable_filament_types );
         void apply_config(const PrintConfig& config);
 
+        DynamicConfig export_config_for_render() const;
         void set_filaments(const std::vector<Extruder>&filament_lists) { m_filament_lists=filament_lists;}
 
         void enable_stealth_time_estimator(bool enabled);
@@ -1294,6 +1297,9 @@ namespace Slic3r {
         void process_T(const GCodeReader::GCodeLine& line);
         void process_T(const std::string_view command);
         void process_M1020(const GCodeReader::GCodeLine &line);
+
+        void process_M622(const GCodeReader::GCodeLine &line);
+        void process_M623(const GCodeReader::GCodeLine &line);
 
         void process_filament_change(int id);
         //BBS: different path_type is only used for arc move

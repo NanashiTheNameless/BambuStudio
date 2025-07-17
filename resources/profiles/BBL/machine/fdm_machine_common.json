@@ -8,6 +8,7 @@
     ],
     "printer_variant": "0.4",
     "auxiliary_fan": "1",
+    "apply_top_surface_compensation": "0",
     "best_object_pos": "0.5x0.5",
     "default_filament_profile": [],
     "default_print_profile": "0.16mm Optimal @BBL X1C",
@@ -89,6 +90,7 @@
     "machine_min_travel_rate": [
         "0"
     ],
+    "machine_prepare_compensation_time": "260",
     "machine_switch_extruder_time": "0",
     "machine_unload_filament_time": "29",
     "master_extruder_id": "1",
@@ -99,6 +101,9 @@
         "0.08"
     ],
     "nozzle_height": "4",
+    "nozzle_flush_dataset": [
+        "0"
+    ],
     "printable_height": "250",
     "printer_settings_id": "",
     "printer_structure": "corexy",

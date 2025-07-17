@@ -1520,9 +1520,10 @@ TriangleMesh WipeTower::its_make_rib_tower(float width, float depth, float heigh
     Polygon      bottom = rib_section(width, depth, rib_length, rib_width, fillet_wall);
     Polygon      top    = rib_section(width, depth, std::sqrt(width * width + depth * depth), rib_width, fillet_wall);
     if (fillet_wall)
-    assert(bottom.points.size() == top.points.size());
+        assert(bottom.points.size() == top.points.size());
     int     offset       = bottom.points.size();
     res.its.vertices.reserve(offset * 2);
+    if (bottom.area() < scaled(EPSILON) || top.area() < scaled(EPSILON) || bottom.points.size() != top.points.size()) return res;
     auto    faces_bottom = Triangulation::triangulate(bottom);
     auto    faces_top    = Triangulation::triangulate(top);
     res.its.indices.reserve(offset * 2 + faces_bottom.size() + faces_top.size());
@@ -1545,6 +1546,7 @@ TriangleMesh WipeTower::its_make_rib_tower(float width, float depth, float heigh
 
 TriangleMesh WipeTower::its_make_rib_brim(const Polygon& brim, float layer_height) {
     TriangleMesh res;
+    if (brim.area() < scaled(EPSILON))return res;
     int          offset = brim.size();
     res.its.vertices.reserve(brim.size() * 2);
     auto    faces= Triangulation::triangulate(brim);
@@ -2843,7 +2845,7 @@ WipeTower::ToolChangeResult WipeTower::merge_tcr(ToolChangeResult &first, ToolCh
     WipeTower::ToolChangeResult out = first;
     if ((first.end_pos - second.start_pos).norm() > (float)EPSILON) {
         std::string travel_gcode = "G1 X" + Slic3r::float_to_string_decimal_point(second.start_pos.x(), 3) + " Y" +
-                                   Slic3r::float_to_string_decimal_point(second.start_pos.y(), 3) + "F" + std::to_string(m_max_speed) + "\n";
+                                   Slic3r::float_to_string_decimal_point(second.start_pos.y(), 3) + " F" + std::to_string(m_max_speed) + "\n";
         bool need_insert_travel = true;
         if (second.is_tool_change
             && is_approx(second.start_pos.x(), second.tool_change_start_pos.x())
@@ -4716,9 +4718,11 @@ bool WipeTower::is_valid_last_layer(int tool) const
 }
 float WipeTower::get_block_gap_width(int tool,bool is_nozzlechangle)
 {
-    assert(m_block_infill_gap_width.count(m_filpar[tool].category));
+    //assert(m_block_infill_gap_width.count(m_filpar[tool].category));//The code contains logic that attempts to access non-existent blocks, 
+                                                                     // such as in case of involving two extruders with only a single head and a single layer,
+                                                                     // some code will attempt to access the block's nozzle_change_gap_width, even though the block does not exist.
     if (!m_block_infill_gap_width.count(m_filpar[tool].category)) {
-        return m_perimeter_width;
+        return is_nozzlechangle ? m_nozzle_change_perimeter_width : m_perimeter_width;
     }
     return is_nozzlechangle ? m_block_infill_gap_width[m_filpar[tool].category].second : m_block_infill_gap_width[m_filpar[tool].category].first;
 
