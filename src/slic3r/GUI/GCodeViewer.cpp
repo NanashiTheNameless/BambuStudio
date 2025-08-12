@@ -286,8 +286,16 @@ ColorRGBA GCodeViewer::Extrusions::Range::get_color_at(float value) const
         value = std::log(value);
         _min  = std::log(min);
     }
-    if (value > max) { return range_colors[range_colors.size() -1]; }
-    if (value < _min) { return range_colors[0];}
+    if (value > max) {
+        return range_colors[range_colors.size() -1];
+    }
+    if (value < _min) {
+        if (value < _min - 0.01f) {
+            return ColorRGBA::GRAY(); // for helio
+        } else {
+            return range_colors[0];
+        }
+    }
     const float global_t = (step != 0.0f) ? std::max(0.0f, value - _min) / step : 0.0f; // lower limit of 0.0f
 
     const size_t color_max_idx = range_colors.size() - 1;
@@ -458,11 +466,7 @@ void GCodeViewer::SequentialView::Marker::render(int canvas_width, int canvas_he
         ImGui::PushItemWidth(item_size);
         imgui.text(buf);
 
-        if (view_type != EViewType::ThermalIndexMin && view_type != EViewType::ThermalIndexMax && view_type != EViewType::ThermalIndexMean) {
-            sprintf(buf, "%s%.0f", speed.c_str(), m_curr_move.feedrate);
-            ImGui::PushItemWidth(item_size);
-            imgui.text(buf);
-        } else {
+        if (view_type == EViewType::ThermalIndexMin || view_type == EViewType::ThermalIndexMax || view_type == EViewType::ThermalIndexMean) {
             sprintf(buf, "%s", thermal_index.c_str());
             ImGui::PushItemWidth(item_size);
             imgui.text(buf);
@@ -716,8 +720,15 @@ void GCodeViewer::SequentialView::GCodeWindow::render(float top, float bottom, f
             std::vector<std::string> tokens;
             boost::split(tokens, gline, boost::is_any_of(";"), boost::token_compress_on);
             command = tokens.front();
-            if (tokens.size() > 1)
-                comment = ";" + tokens.back();
+            if (tokens.size() > 1) {
+                if (Slic3r::HelioBackgroundProcess::State::STATE_FINISHED == m_sequential_view.m_gcode_viewer.m_last_helio_process_status &&
+                    !m_sequential_view.m_gcode_viewer.is_helio_option() &&
+                    boost::contains(tokens.back(), "helio")) {
+                    comment = "";
+                } else {
+                    comment = ";" + tokens.back();
+                }
+            }
 
             // extract gcode command and parameters
             if (!command.empty()) {
@@ -733,7 +744,6 @@ void GCodeViewer::SequentialView::GCodeWindow::render(float top, float bottom, f
             boost::trim(command);
             boost::trim(parameters);
             boost::trim(comment);
-
             ret.push_back({ command, parameters, comment });
         }
         return ret;
@@ -903,8 +913,8 @@ void GCodeViewer::SequentialView::GCodeWindow::render(float top, float bottom, f
                 boost::split(tokens, gline, boost::is_any_of(";"), boost::token_compress_on);
                 command = tokens.front();
                 if (tokens.size() > 1) comment = ";" + tokens.back();
-
-                ret.push_back(GCodeProcessor::parse_helioadditive_comment(comment));
+                bool is_helio_gcode{false};
+                ret.push_back(GCodeProcessor::parse_helioadditive_comment(comment, is_helio_gcode));
             }
             return ret;
         };
@@ -1373,6 +1383,7 @@ void GCodeViewer::load(const GCodeProcessorResult& gcode_result, const Print& pr
         Pointfs printable_area;
         //BBS: add bed exclude area
         Pointfs bed_exclude_area = Pointfs();
+        Pointfs wrapping_exclude_area = Pointfs();
         std::vector<Pointfs> extruder_areas;
         std::vector<double> extruder_heights;
         std::string texture;
@@ -1394,12 +1405,15 @@ void GCodeViewer::load(const GCodeProcessorResult& gcode_result, const Print& pr
             if (!gcode_result.bed_exclude_area.empty())
                 bed_exclude_area = gcode_result.bed_exclude_area;
 
+            if (!gcode_result.wrapping_exclude_area.empty())
+                wrapping_exclude_area = gcode_result.wrapping_exclude_area;
+
             if (!gcode_result.extruder_areas.empty())
                 extruder_areas = gcode_result.extruder_areas;
             if (!gcode_result.extruder_heights.empty())
                 extruder_heights = gcode_result.extruder_heights;
 
-            wxGetApp().plater()->set_bed_shape(printable_area, bed_exclude_area, gcode_result.printable_height, extruder_areas, extruder_heights, texture, model, gcode_result.printable_area.empty());
+            wxGetApp().plater()->set_bed_shape(printable_area, bed_exclude_area, wrapping_exclude_area, gcode_result.printable_height, extruder_areas, extruder_heights, texture, model, gcode_result.printable_area.empty());
         }
         /*else {
             // adjust printbed size in dependence of toolpaths bbox
@@ -1519,8 +1533,10 @@ void GCodeViewer::refresh(const GCodeProcessorResult& gcode_result, const std::v
         {
         case EMoveType::Extrude:
         {
-            m_extrusions.ranges.height.update_from(round_to_bin(curr.height));
-            m_extrusions.ranges.width.update_from(round_to_bin(curr.width));
+            if (curr.extrusion_role != ExtrusionRole::erCustom) {
+                m_extrusions.ranges.height.update_from(round_to_bin(curr.height));
+                m_extrusions.ranges.width.update_from(round_to_bin(curr.width));
+            } // prevent the start code extrude extreme height/width and make the range deviate from the normal range
             m_extrusions.ranges.fan_speed.update_from(curr.fan_speed);
             m_extrusions.ranges.temperature.update_from(curr.temperature);
             if (curr.extrusion_role != erCustom || is_visible(erCustom))
@@ -5559,13 +5575,13 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
     if (wxGetApp().app_config->get("helio_enable") == "true") {
         auto  line_height         = ImGui::GetFrameHeight();
         auto  image_height        = line_height * 0.6;
-
+        imgui.disabled_begin(!wxGetApp().is_helio_enable());
         float single_word_width   = imgui.calc_text_size("ABCD").x;
         float title_width         = imgui.calc_text_size(title).x;
         float spacing             = 18.0f * m_scale;
         float icon_spacing        = 20.0f * m_scale;
         float icon_width          = image_height;
-        float text_width          = imgui.calc_text_size(_u8L("Helio Action").c_str()).x + imgui.calc_text_size("A").x;
+        float text_width          = imgui.calc_text_size(_u8L("Helio Simulation").c_str()).x + imgui.calc_text_size("A").x;
         float helio_button_width  = icon_width + text_width  + 30 * m_scale;
         float helio_button_height = ImGui::GetFrameHeight();
         ImGui::SameLine(0, (single_word_width + spacing) * 8.0f - title_width - helio_button_width);
@@ -5597,7 +5613,7 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
         ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(),
                                             ImVec2(button_min.x + ImGui::GetStyle().FramePadding.x + icon_width + 10 * m_scale, text_y),
                                             color_text,
-                                            _u8L("Helio Action").c_str());
+                                            _u8L("Helio Simulation").c_str());
         ImGui::PopStyleVar();
         if (button_clicked) {
             BOOST_LOG_TRIVIAL(info) << "Helio button clicked";
@@ -5606,6 +5622,7 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
             evt.SetEventObject(plater);
             wxPostEvent(plater, evt);
         }
+        imgui.disabled_end();
         ImGui::SameLine();
     } else {
         // BBS Set the width of the 8 "ABCD" words minus the "sliced result" to the spacing between the buttons and the title
@@ -5646,10 +5663,10 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
     ImGui::SameLine();
     imgui.bold_text(_u8L("Color Scheme"));
     ImGui::SameLine();
-    if (wxGetApp().plater()->get_helio_process_status() != m_last_helio_process_status) {
+    auto curr_plate_index = wxGetApp().plater()->get_partplate_list().get_curr_plate_index();
+    if (wxGetApp().plater()->get_helio_process_status() != m_last_helio_process_status || m_gcode_result->update_imgui_flag) {
         m_last_helio_process_status = wxGetApp().plater()->get_helio_process_status();
-        auto curr_plate_index       = wxGetApp().plater()->get_partplate_list().get_curr_plate_index();
-        if ((int) Slic3r::HelioBackgroundProcess::State::STATE_FINISHED == m_last_helio_process_status) {
+        if ((int) Slic3r::HelioBackgroundProcess::State::STATE_FINISHED == m_last_helio_process_status || (m_gcode_result->update_imgui_flag &&m_gcode_result->is_helio_gcode)) {
             update_thermal_options(true);
             for (int i = 0; i < view_type_items.size(); i++) {
                 if (view_type_items[i] == EViewType::ThermalIndexMean) {
@@ -5660,10 +5677,13 @@ void GCodeViewer::render_legend(float &legend_height, int canvas_width, int canv
             set_view_type(EViewType::ThermalIndexMean);
             wxGetApp().plater()->get_notification_manager()->close_notification_of_type(NotificationType::HelioSlicingError);
             m_helio_slice_map_oks[curr_plate_index] = true;
-        } else if ((int) Slic3r::HelioBackgroundProcess::State::STATE_CANCELED == m_last_helio_process_status) {
+        } else if ((int) Slic3r::HelioBackgroundProcess::State::STATE_CANCELED == m_last_helio_process_status ||
+                   (m_gcode_result->update_imgui_flag && !m_gcode_result->is_helio_gcode && curr_plate_has_ok_helio_slice(curr_plate_index))) {
             reset_curr_plate_thermal_options(curr_plate_index);
         }
+        const_cast<GCodeProcessorResult *>(m_gcode_result)->update_imgui_flag = false;
     }
+
     push_combo_style();
     ImGuiComboFlags flags = 0;
     const char *view_type_value = view_type_image_names[m_view_type_sel].option_name.c_str();

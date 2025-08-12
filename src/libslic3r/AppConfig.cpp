@@ -384,6 +384,14 @@ void AppConfig::set_defaults()
         set_bool("helio_enable", false);
     }
 
+    if (get("helio_api_china").empty()) {
+        set("helio_api_china", "https://api.helioam.cn/graphql");
+    }
+
+    if (get("helio_api_other").empty()) {
+        set("helio_api_other", "https://api.helioadditive.com/graphql");
+    }
+
     if (get("max_recent_count").empty()) {
         set("max_recent_count", "18");
     }
@@ -457,6 +465,9 @@ void AppConfig::set_defaults()
     }
     if (get("play_tpu_printing_video").empty()) {
         set_bool("play_tpu_printing_video", true);
+    }
+    if (get("show_wrapping_detect_dialog").empty()) {
+        set_bool("show_wrapping_detect_dialog", true);
     }
 
     // Remove legacy window positions/sizes

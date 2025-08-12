@@ -53,7 +53,7 @@ class SlicingStatusEvent;
 class HelioCompletionEvent;
 enum SLAPrintObjectStep : unsigned int;
 enum class ConversionType : int;
-class Ams;
+class DevAms;
 namespace csg {
 enum class BooleanFailReason;
 }
@@ -714,6 +714,8 @@ public:
 
     void update_machine_sync_status();
 
+    void show_wrapping_detect_dialog_if_necessary();
+
 #if ENABLE_ENVIRONMENT_MAP
     void init_environment_texture();
     unsigned int get_environment_texture_id() const;
@@ -746,7 +748,15 @@ public:
     void update_flush_volume_matrix(size_t old_nozzle_size, size_t new_nozzle_size);
     //BBS: add bed exclude area
 	void set_bed_shape() const;
-    void set_bed_shape(const Pointfs& shape, const Pointfs& exclude_area, const double printable_height, std::vector<Pointfs> extruder_areas, std::vector<double> extruder_heights, const std::string& custom_texture, const std::string& custom_model, bool force_as_custom = false) const;
+    void set_bed_shape(const Pointfs       &shape,
+                       const Pointfs       &exclude_area,
+                       const Pointfs       &wrapping_exclude_area,
+                       const double         printable_height,
+                       std::vector<Pointfs> extruder_areas,
+                       std::vector<double>  extruder_heights,
+                       const std::string   &custom_texture,
+                       const std::string   &custom_model,
+                       bool                 force_as_custom = false) const;
 
 	const NotificationManager* get_notification_manager() const;
 	NotificationManager* get_notification_manager();

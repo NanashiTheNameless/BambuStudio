@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Bambu Studio\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-31 18:21+0800\n"
+"POT-Creation-Date: 2025-08-12 19:21+0800\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,6 +24,46 @@ msgstr "Filamentet kanske inte är kompatibelt med maskinens aktuella inställni
 
 msgid "The filament model is unknown. A random filament preset will be used."
 msgstr "Filament typen är okänd. En slumpmässig filament inställning kommer att användas."
+
+msgid "right"
+msgstr "höger"
+
+msgid "left"
+msgstr "vänster"
+
+msgid "right extruder"
+msgstr "höger extruder"
+
+msgid "left extruder"
+msgstr "vänster extruder"
+
+msgid "extruder"
+msgstr ""
+
+msgid "TPU is not supported by AMS."
+msgstr "TPU stöds inte av AMS."
+
+msgid "Damp PVA will become flexible and get stuck inside AMS,please take care to dry it before use."
+msgstr "Fuktig PVA blir flexibel och fastnar i AMS, var noga med att torka den väl före användning."
+
+msgid "Damp PVA is flexible and may get stuck in extruder. Dry it before use."
+msgstr "Fuktig PVA är flexibel och kan fastna i extruder. Torka före användning."
+
+msgid "The rough surface of PLA Glow can accelerate wear on the AMS system, particularly on the internal components of the AMS Lite."
+msgstr "Den grova ytan på PLA Glow kan påskynda slitaget på AMS systemet, särskilt på de interna komponenterna i AMS Lite."
+
+msgid "CF/GF filaments are hard and brittle, It's easy to break or get stuck in AMS, please use with caution."
+msgstr "CF/GF-trådar är hårda och spröda, så de kan lätt gå sönder eller fastna i en AMS; använd dem med försiktighet."
+
+msgid "PPS-CF is brittle and could break in bended PTFE tube above Toolhead."
+msgstr "PPS-CF är sprött och kan gå sönder i en böjd PTFE slang ovanför verktygshuvudet."
+
+msgid "PPA-CF is brittle and could break in bended PTFE tube above Toolhead."
+msgstr "PPA-CF är sprött och kan gå sönder i en böjd PTFE slang ovanför verktygshuvudet."
+
+#, c-format, boost-format
+msgid "%s is not supported by %s extruder."
+msgstr "%s stöds inte av %s extruder."
 
 msgid "Current AMS humidity"
 msgstr "Aktuell AMS fuktighet"
@@ -2255,18 +2295,6 @@ msgstr "Multifärgs Utskrift"
 msgid "Line Type"
 msgstr "Linje typ"
 
-msgid "More"
-msgstr "Mer"
-
-msgid "Open Preferences."
-msgstr "Öppna inställningar."
-
-msgid "Open next tip."
-msgstr "Öppna nästa tips."
-
-msgid "Open Documentation in web browser."
-msgstr "Öppna dokumentationen i webbläsaren."
-
 msgid "Color"
 msgstr "Färg"
 
@@ -3444,8 +3472,8 @@ msgstr ""
 "låsdjupet bör vara mindre än ytdjupet.\n"
 "Återställ till 50%% ytdjup"
 
-msgid "Spiral mode only works when wall loops is 1, support is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
-msgstr "Spiralläget fungerar endast när väggslingor är 1, support är inaktiverat, översta skal skiktet är 0, fyllningsdensitet är 0, timelapse typ är traditionell och utjämning av vägghastighet i z-riktning är falsk."
+msgid "Spiral mode only works when wall loops is 1, support is disabled, clumping detection by probing is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
+msgstr "Spiral läge fungerar bara när väggslingor är 1, support är inaktiverat, klump detektering genom probe är inaktiverad, övre skalet lager är 0, gles utfyllnad densitet är 0, timelapse typ är traditionell och utjämning vägghastighet i z riktning är falsk."
 
 msgid " But machines with I3 structure will not generate timelapse videos."
 msgstr " Maskiner med I3-struktur kan dock inte generera timelapse videor."
@@ -3630,27 +3658,14 @@ msgstr "Automatisk kontroll: Material position"
 msgid "Cutting Module Offset Calibration"
 msgstr "Kalibrering av skärmodulens offset"
 
-msgid "left"
-msgstr "vänster"
+msgid "Measuring Surface"
+msgstr "Mäter ytan"
 
-msgid "right"
-msgstr "höger"
-
-#, c-format, boost-format
-msgid "%s is not supported by %s extruder."
-msgstr "%s stöds inte av %s extruder."
+msgid "Thermal Preconditioning for first layer optimization"
+msgstr "Termisk konditionering för optimering av första lagret"
 
 msgid "Unknown"
 msgstr "Okänd"
-
-msgid "Fatal"
-msgstr "Allvarligt"
-
-msgid "Serious"
-msgstr "Allvarlig"
-
-msgid "Common"
-msgstr "Vanlig"
 
 msgid "Update successful."
 msgstr "Uppdateringen lyckades."
@@ -3714,24 +3729,6 @@ msgstr "Misslyckades med att generera cali G kod"
 msgid "Calibration error"
 msgstr "Fel vid kalibrering"
 
-msgid "TPU is not supported by AMS."
-msgstr "TPU stöds inte av AMS."
-
-msgid "Damp PVA will become flexible and get stuck inside AMS,please take care to dry it before use."
-msgstr "Fuktig PVA blir flexibel och fastnar i AMS, var noga med att torka den väl före användning."
-
-msgid "The rough surface of PLA Glow can accelerate wear on the AMS system, particularly on the internal components of the AMS Lite."
-msgstr "Den grova ytan på PLA Glow kan påskynda slitaget på AMS systemet, särskilt på de interna komponenterna i AMS Lite."
-
-msgid "CF/GF filaments are hard and brittle, It's easy to break or get stuck in AMS, please use with caution."
-msgstr "CF/GF-trådar är hårda och spröda, så de kan lätt gå sönder eller fastna i en AMS; använd dem med försiktighet."
-
-msgid "PPS-CF is brittle and could break in bended PTFE tube above Toolhead."
-msgstr "PPS-CF är sprött och kan gå sönder i en böjd PTFE slang ovanför verktygshuvudet."
-
-msgid "PPA-CF is brittle and could break in bended PTFE tube above Toolhead."
-msgstr "PPA-CF är sprött och kan gå sönder i en böjd PTFE slang ovanför verktygshuvudet."
-
 msgid "Resume Printing"
 msgstr "Återuppta utskrift"
 
@@ -3777,8 +3774,8 @@ msgstr "Ignorera detta och återuppta"
 msgid "Problem Solved and Resume"
 msgstr "Problemet löst och återuppta"
 
-msgid "Stop Buzzer"
-msgstr "Stoppa summern"
+msgid "Got it, Turn off the Fire Alarm."
+msgstr "Jag förstår, stäng av brandlarmet."
 
 msgid "Retry (problem solved)"
 msgstr "Försök igen (problemet löst)"
@@ -3992,8 +3989,8 @@ msgstr "från"
 msgid "Slicing Result"
 msgstr "Berednings resultat"
 
-msgid "Helio Action"
-msgstr "Helio Åtgärd"
+msgid "Helio Simulation"
+msgstr ""
 
 msgid "Color Scheme"
 msgstr "Färgschema"
@@ -5837,6 +5834,9 @@ msgstr "Programvaran har en ny version."
 msgid "Goto download page."
 msgstr "Besök nedladdnings sidan."
 
+msgid "More"
+msgstr "Mer"
+
 msgid "Open Folder."
 msgstr "Öppna Mapp."
 
@@ -6473,6 +6473,22 @@ msgstr "Helio stöder inte användning av ett antal material större än 1."
 msgid "Helio does not support materials %s"
 msgstr "Helio stöder inte material %s"
 
+msgid ""
+"No valid Helio-PAT detected. Helio simulation & optimization cannot proceed. \n"
+"Please request a new Helio-PAT."
+msgstr ""
+"Ingen giltig Helio-PAT upptäckt. Helio simulering och optimering kan inte fortsätta. \n"
+"Begär en ny Helio-PAT."
+
+msgid "Execution Blocked"
+msgstr "Utförandet blockerat"
+
+msgid "Regenerate PAT"
+msgstr "Regenerera PAT"
+
+msgid "Failed to obtain Helio PAT, Click Refresh to obtain it again."
+msgstr "Det gick inte att få Helio PAT, Klicka på Uppdatera för att få det igen."
+
 msgid "Please resolve the slicing errors and publish again."
 msgstr "Lös berednings felen och publicera igen."
 
@@ -6774,6 +6790,12 @@ msgstr "För att reparera modellen, använd ett tredjepartsverktyg innan du impo
 msgid "Plate% d: %s is not suggested to be used to print filament %s(%s). If you still want to do this printing, please set this filament's bed temperature to non zero."
 msgstr "Platta% d: %s rekommenderas inte för användning av filament %s(%s). Om du fortfarande vill göra detta utskriftsjobb, ändra detta filaments byggplattas temperatur till ett tal som inte är noll."
 
+msgid "Parameter recommendation"
+msgstr ""
+
+msgid "In the process preset, under \"Others-Advanced\", check \"Enable clumping detection by probing\". This feature generates a small wipe tower and performs probing detection to identify clumping issues early in the print and stop printing, preventing print failures or printer damage.\n"
+msgstr ""
+
 msgid "Currently, the object configuration form cannot be used with a multiple-extruder printer."
 msgstr "För närvarande kan formuläret för objekt konfiguration inte användas med en printer med flera extruders."
 
@@ -7047,6 +7069,9 @@ msgstr "Helio alternativ"
 
 msgid "Enable Helio"
 msgstr "Aktivera Helio"
+
+msgid "Helio-PAT"
+msgstr ""
 
 msgid "About Helio"
 msgstr "Om Helio"
@@ -7570,17 +7595,8 @@ msgstr "Kostnad %dg filament och %d ändrar mer än optimal gruppering."
 msgid "nozzle"
 msgstr ""
 
-msgid "extruder"
-msgstr ""
-
 msgid "both extruders"
 msgstr "båda extrudrarna"
-
-msgid "right extruder"
-msgstr "höger extruder"
-
-msgid "left extruder"
-msgstr "vänster extruder"
 
 msgid "Tips: If you changed your nozzle of your printer lately, Please go to 'Device -> Printer parts' to change your nozzle setting."
 msgstr "Tips och råd: Om du har bytt ut din nozzle på din printer nyligen, gå till \"Enhet -> Printer delar\" för att byta din nozzle inställning."
@@ -9101,8 +9117,8 @@ msgstr "När du bekräftar att aktivera denna funktion innebär det att du har b
 msgid "Agree"
 msgstr "Godkänn"
 
-msgid "Helio settings"
-msgstr "Helio inställningar"
+msgid "Helio Additive"
+msgstr "Helio Additiv"
 
 msgid "Chamber temperature"
 msgstr "Kammarens temperatur"
@@ -9112,6 +9128,12 @@ msgstr "Obs: Ställ in ovanstående temperatur enligt den faktiska situationen. 
 
 msgid "How to use Helio"
 msgstr "Hur du använder Helio"
+
+msgid "Failed to obtain Helio PAT. The number of issued PATs has reached the upper limit. Please pay attention to the information on the Helio official website. Click Refresh to get it again once it is available."
+msgstr "Det gick inte att få Helio PAT. Antalet utfärdade PATs har nått den övre gränsen. Var uppmärksam på informationen på Helio officiella hemsida. Klicka Uppdatera för att få den igen när den är tillgänglig."
+
+msgid "Click for more details"
+msgstr "Klicka för mer info"
 
 msgid "Air Pump"
 msgstr "Luftpump"
@@ -9439,6 +9461,9 @@ msgstr "Om du skriver ut högtemperaturs- och lågtemperatursfilament tillsamman
 msgid "Printing high-temp and low-temp filaments together may cause nozzle clogging or printer damage. If you still want to print, you can enable the option in Preferences."
 msgstr "Om du skriver ut högtemperaturs- och lågtemperatursfilament tillsammans kan det orsaka igensättning av nozzle eller skador på printern. Om du fortfarande vill skriva ut kan du aktivera alternativet i Inställningar."
 
+msgid "Printing different-temp filaments together may cause nozzle clogging or printer damage."
+msgstr "Att skriva ut olika temp filament tillsammans kan orsaka nozzle igensättning eller printer skador."
+
 msgid "Printing high-temp and mid-temp filaments together may cause nozzle clogging or printer damage."
 msgstr "Om du skriver ut högtemperaturs- och medeltemperatursfilament tillsammans kan det orsaka igensättning av nozzle eller skada på printern."
 
@@ -9453,6 +9478,15 @@ msgstr "Smooth läge för timelapse stöds inte när ”per objekt” -sekvens �
 
 msgid "Clumping detection is not supported when \"by object\" sequence is enabled."
 msgstr "Klump detektering stöds inte när \"per objekt\" sekvens är aktiverad."
+
+msgid "enable_wrapping_detection"
+msgstr ""
+
+msgid "Prime tower is required for clumping detection; otherwise, there may be flaws on the model."
+msgstr ""
+
+msgid "enable_prime_tower"
+msgstr ""
 
 msgid "Please select \"By object\" print sequence to print multiple objects in spiral vase mode."
 msgstr "Kontrollera \"Per objekt\" utskrifts sekvens för att skriva ut multipla objekt i Vase läge."
@@ -10058,8 +10092,8 @@ msgstr "Små perimetrar"
 msgid "This setting will affect the speed of perimeters having radius <= small perimeter threshold(usually holes). If expressed as percentage (for example: 80%) it will be calculated onthe outer wall speed setting above. Set to zero for auto."
 msgstr "Denna inställning påverkar hastigheten för omkretsar med radie <= tröskelvärde för liten omkrets(vanligtvis hål). Om den uttrycks i procent (till exempel: 80%) kommer den att beräknas för ytterväggshastighet ovan. Ställ in på noll för auto."
 
-msgid "Small perimter threshold"
-msgstr "Liten perimeter tröskel"
+msgid "Small perimeter threshold"
+msgstr "Gränsvärde för liten omkrets"
 
 msgid "This sets the threshold for small perimeter length. Default threshold is 0mm"
 msgstr "Detta ställer in tröskelvärdet för liten perimeterlängd. Standardgränsen är 0mm"
@@ -10618,6 +10652,12 @@ msgstr "Klump detekterings lager"
 
 msgid "Clumping detection layers."
 msgstr "Klump detekterings lager."
+
+msgid "Probing exclude area of clumping"
+msgstr "Probing uteslutet område för klumpar"
+
+msgid "Probing exclude area of clumping."
+msgstr "Probing uteslutet område för klumpar."
 
 msgid "Thumbnail size"
 msgstr "Miniatyr storlek"
@@ -13650,6 +13690,42 @@ msgstr "Styrkeprofil för 0.8 mm nozzle, prioritering av styrka."
 msgid "Standard profile for 0.8mm nozzle, prioritizing speed."
 msgstr "Standardprofil för 0.8 mm nozzle, prioriterar hastighet."
 
+msgid "Helio: Process Started"
+msgstr ""
+
+msgid "Helio API endpoint is empty, please check the configuration."
+msgstr ""
+
+msgid "Personal assecc token is empty, please fill in the correct token."
+msgstr ""
+
+msgid "Helio: Presigned URL Created"
+msgstr ""
+
+msgid "Helio: file succesfully uploaded"
+msgstr ""
+
+msgid "Helio: file upload failed"
+msgstr ""
+
+msgid "Please make sure you have the corrent API key set in preferences."
+msgstr ""
+
+msgid "Helio: GCode created successfully"
+msgstr ""
+
+msgid "Helio: simulation successfully created"
+msgstr ""
+
+msgid "Helio: simulation working"
+msgstr ""
+
+msgid "Helio: simulation failed"
+msgstr ""
+
+msgid "Helio: GCode downloaded successfully"
+msgstr ""
+
 msgid "No AMS"
 msgstr "Ingen AMS"
 
@@ -14150,6 +14226,50 @@ msgid ""
 msgstr ""
 "Undvik vridning\n"
 "Visste du att när du skriver ut material som är benägna att vrida, såsom ABS, kan en lämplig ökning av värmebäddens temperatur minska sannolikheten för vridning."
+
+#, c-format, boost-format
+#~ msgid "Printer not connected. Please go to the device page to connect %s printer before syncing."
+#~ msgstr "Printern är inte ansluten. Gå till enhetssidan för att ansluta printern %s innan du synkroniserar."
+
+#, c-format, boost-format
+#~ msgid "The currently connected printer on the device page is not %s. Please switch to %s before syncing."
+#~ msgstr "Den anslutna printern på enhetssidan är inte %s. Växla till %s innan synkronisering."
+
+#~ msgid "Helio Action"
+#~ msgstr "Helio Åtgärd"
+
+#~ msgid "MqttSource"
+#~ msgstr "Mqtt Källa"
+
+#~ msgid "Open Preferences."
+#~ msgstr "Öppna inställningar."
+
+#~ msgid "Open next tip."
+#~ msgstr "Öppna nästa tips."
+
+#~ msgid "Open Documentation in web browser."
+#~ msgstr "Öppna dokumentationen i webbläsaren."
+
+#~ msgid "Spiral mode only works when wall loops is 1, support is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
+#~ msgstr "Spiralläget fungerar endast när väggslingor är 1, support är inaktiverat, översta skal skiktet är 0, fyllningsdensitet är 0, timelapse typ är traditionell och utjämning av vägghastighet i z-riktning är falsk."
+
+#~ msgid "Fatal"
+#~ msgstr "Allvarligt"
+
+#~ msgid "Serious"
+#~ msgstr "Allvarlig"
+
+#~ msgid "Common"
+#~ msgstr "Vanlig"
+
+#~ msgid "Stop Buzzer"
+#~ msgstr "Stoppa summern"
+
+#~ msgid "Helio settings"
+#~ msgstr "Helio inställningar"
+
+#~ msgid "Small perimter threshold"
+#~ msgstr "Liten perimeter tröskel"
 
 #~ msgid "Helio slicing does not support using a number of materials greater than 1."
 #~ msgstr "Helio beredning stöder inte användning av ett antal material större än 1."

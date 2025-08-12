@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_set>
+#include <wx/statbmp.h>
 #include <wx/webrequest.h>
 
 #include "GUI_Utils.hpp"
@@ -37,10 +38,11 @@ public:
         //LOAD_FILAMENT = 26*/
         IGNORE_RESUME = 27,
         PROBLEM_SOLVED_RESUME = 28,
-        STOP_BUZZER = 29,
+        TURN_OFF_FIRE_ALARM = 29,
 
         RETRY_PROBLEM_SOLVED = 34,
         STOP_DRYING = 35,
+        REMOVE_CLOSE_BTN = 39, // special case, do not show close button
 
         ERROR_BUTTON_COUNT
     };

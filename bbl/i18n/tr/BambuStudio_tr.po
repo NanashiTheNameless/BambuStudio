@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-31 18:21+0800\n"
+"POT-Creation-Date: 2025-08-12 19:21+0800\n"
 "PO-Revision-Date: 2025-07-17 21:56+0300\n"
 "Last-Translator: Fatih AYDIN <fatihaydin5228@gmail.com>\n"
 "Language-Team: \n"
@@ -27,6 +27,46 @@ msgstr "Filament mevcut makine ayarları ile uyumlu olmayabilir. Rastgele bir fi
 
 msgid "The filament model is unknown. A random filament preset will be used."
 msgstr "Filament modeli bilinmiyor. Rastgele bir filament ön ayarı kullanılacaktır."
+
+msgid "right"
+msgstr "sağ"
+
+msgid "left"
+msgstr "sol"
+
+msgid "right extruder"
+msgstr "sağ ekstruder"
+
+msgid "left extruder"
+msgstr "sol ekstruder"
+
+msgid "extruder"
+msgstr "ekstruder"
+
+msgid "TPU is not supported by AMS."
+msgstr "TPU, AMS tarafından desteklenmez."
+
+msgid "Damp PVA will become flexible and get stuck inside AMS,please take care to dry it before use."
+msgstr "Nemli PVA esnekleşecek ve AMS'nin içine sıkışacaktır, lütfen kullanmadan önce kurutmaya dikkat edin."
+
+msgid "Damp PVA is flexible and may get stuck in extruder. Dry it before use."
+msgstr ""
+
+msgid "The rough surface of PLA Glow can accelerate wear on the AMS system, particularly on the internal components of the AMS Lite."
+msgstr "PLA Glow'un pürüzlü yüzeyi AMS sisteminde, özellikle de AMS Lite'ın iç bileşenlerinde aşınmayı hızlandırabilir."
+
+msgid "CF/GF filaments are hard and brittle, It's easy to break or get stuck in AMS, please use with caution."
+msgstr "CF/GF filamentleri sert ve kırılgandır. AMS'de kırılması veya sıkışması kolaydır, lütfen dikkatli kullanın."
+
+msgid "PPS-CF is brittle and could break in bended PTFE tube above Toolhead."
+msgstr "PPS-CF kırılgandır ve Baskı Kafası üzerindeki bükülmüş PTFE tüp içinde kırılabilir."
+
+msgid "PPA-CF is brittle and could break in bended PTFE tube above Toolhead."
+msgstr "PPA-CF kırılgandır ve Baskı Kafasının üzerindeki bükülmüş PTFE tüp içinde kırılabilir."
+
+#, c-format, boost-format
+msgid "%s is not supported by %s extruder."
+msgstr "%s, %s ekstrüder tarafından desteklenmiyor."
 
 msgid "Current AMS humidity"
 msgstr "AMS mevcut nem oranı"
@@ -2260,18 +2300,6 @@ msgstr "Çok Renkli Baskı"
 msgid "Line Type"
 msgstr "Çizgi Tipi"
 
-msgid "More"
-msgstr "Daha"
-
-msgid "Open Preferences."
-msgstr "Tercihler'i açın."
-
-msgid "Open next tip."
-msgstr "Sonraki ipucunu açın."
-
-msgid "Open Documentation in web browser."
-msgstr "Belgeleri web tarayıcısında açın."
-
 msgid "Color"
 msgstr "Renk"
 
@@ -3447,8 +3475,8 @@ msgstr ""
 "kilit derinliği, kaplama derinliğinden küçük olmalıdır.\n"
 "Kaplama derinliğinin %%50'sine sıfırla."
 
-msgid "Spiral mode only works when wall loops is 1, support is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
-msgstr "Spiral modu yalnızca duvar döngüleri 1, destek devre dışı, üst kabuk katmanları 0, seyrek dolgu yoğunluğu 0, zaman atlamalı tip geleneksel ve z yönünde duvar hızını yumuşatma yanlış olduğunda çalışır."
+msgid "Spiral mode only works when wall loops is 1, support is disabled, clumping detection by probing is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
+msgstr ""
 
 msgid " But machines with I3 structure will not generate timelapse videos."
 msgstr " Ancak I3 yapısına sahip yazıcılar timelapse videolar oluşturmayacaktır."
@@ -3633,27 +3661,14 @@ msgstr "Otomatik Kontrol: Malzeme Konumu"
 msgid "Cutting Module Offset Calibration"
 msgstr "Kesim Modülü Ofset Kalibrasyonu"
 
-msgid "left"
-msgstr "sol"
+msgid "Measuring Surface"
+msgstr ""
 
-msgid "right"
-msgstr "sağ"
-
-#, c-format, boost-format
-msgid "%s is not supported by %s extruder."
-msgstr "%s, %s ekstrüder tarafından desteklenmiyor."
+msgid "Thermal Preconditioning for first layer optimization"
+msgstr ""
 
 msgid "Unknown"
 msgstr "Bilinmeyen"
-
-msgid "Fatal"
-msgstr "Kritik"
-
-msgid "Serious"
-msgstr "Ciddi"
-
-msgid "Common"
-msgstr "Yaygın"
 
 msgid "Update successful."
 msgstr "Güncelleme başarılı."
@@ -3717,24 +3732,6 @@ msgstr "Cali G-code oluşturma başarısız oldu"
 msgid "Calibration error"
 msgstr "Kalibrasyon hatası"
 
-msgid "TPU is not supported by AMS."
-msgstr "TPU, AMS tarafından desteklenmez."
-
-msgid "Damp PVA will become flexible and get stuck inside AMS,please take care to dry it before use."
-msgstr "Nemli PVA esnekleşecek ve AMS'nin içine sıkışacaktır, lütfen kullanmadan önce kurutmaya dikkat edin."
-
-msgid "The rough surface of PLA Glow can accelerate wear on the AMS system, particularly on the internal components of the AMS Lite."
-msgstr "PLA Glow'un pürüzlü yüzeyi AMS sisteminde, özellikle de AMS Lite'ın iç bileşenlerinde aşınmayı hızlandırabilir."
-
-msgid "CF/GF filaments are hard and brittle, It's easy to break or get stuck in AMS, please use with caution."
-msgstr "CF/GF filamentleri sert ve kırılgandır. AMS'de kırılması veya sıkışması kolaydır, lütfen dikkatli kullanın."
-
-msgid "PPS-CF is brittle and could break in bended PTFE tube above Toolhead."
-msgstr "PPS-CF kırılgandır ve Baskı Kafası üzerindeki bükülmüş PTFE tüp içinde kırılabilir."
-
-msgid "PPA-CF is brittle and could break in bended PTFE tube above Toolhead."
-msgstr "PPA-CF kırılgandır ve Baskı Kafasının üzerindeki bükülmüş PTFE tüp içinde kırılabilir."
-
 msgid "Resume Printing"
 msgstr "Baskıya Devam Et"
 
@@ -3780,8 +3777,8 @@ msgstr "Bunu dikkate almayın ve Devam Edin"
 msgid "Problem Solved and Resume"
 msgstr "Sorun Çözüldü ve Devam"
 
-msgid "Stop Buzzer"
-msgstr "Uyarı Sesini Durdur"
+msgid "Got it, Turn off the Fire Alarm."
+msgstr ""
 
 msgid "Retry (problem solved)"
 msgstr "Yeniden deneyin (sorun çözüldü)"
@@ -3995,7 +3992,7 @@ msgstr "itibaren"
 msgid "Slicing Result"
 msgstr "Dilimleme Sonuçları"
 
-msgid "Helio Action"
+msgid "Helio Simulation"
 msgstr ""
 
 msgid "Color Scheme"
@@ -5838,6 +5835,9 @@ msgstr "Yazılımın Yeni sürümü var."
 msgid "Goto download page."
 msgstr "İndirme sayfasına gidin."
 
+msgid "More"
+msgstr "Daha"
+
 msgid "Open Folder."
 msgstr "Klasörü Aç."
 
@@ -6476,6 +6476,20 @@ msgstr ""
 msgid "Helio does not support materials %s"
 msgstr ""
 
+msgid ""
+"No valid Helio-PAT detected. Helio simulation & optimization cannot proceed. \n"
+"Please request a new Helio-PAT."
+msgstr ""
+
+msgid "Execution Blocked"
+msgstr ""
+
+msgid "Regenerate PAT"
+msgstr ""
+
+msgid "Failed to obtain Helio PAT, Click Refresh to obtain it again."
+msgstr ""
+
 msgid "Please resolve the slicing errors and publish again."
 msgstr "Lütfen dilimleme hatalarını giderip tekrar yayınlayın."
 
@@ -6777,6 +6791,12 @@ msgstr "Modeli onarmak için, lütfen Bambu Studio'ya aktarmadan önce üçünc�
 msgid "Plate% d: %s is not suggested to be used to print filament %s(%s). If you still want to do this printing, please set this filament's bed temperature to non zero."
 msgstr "Plaka% d: %s'nin %s(%s) filamentinı yazdırmak için kullanılması önerilmez. Eğer yine de bu baskıyı yapmak istiyorsanız, lütfen bu filamentin yatak sıcaklığını sıfır olmayan bir değere ayarlayın."
 
+msgid "Parameter recommendation"
+msgstr ""
+
+msgid "In the process preset, under \"Others-Advanced\", check \"Enable clumping detection by probing\". This feature generates a small wipe tower and performs probing detection to identify clumping issues early in the print and stop printing, preventing print failures or printer damage.\n"
+msgstr ""
+
 msgid "Currently, the object configuration form cannot be used with a multiple-extruder printer."
 msgstr "Şu anda, nesne yapılandırma formu çoklu ekstrüder yazıcı ile kullanılamaz."
 
@@ -7049,6 +7069,9 @@ msgid "Helio Options"
 msgstr ""
 
 msgid "Enable Helio"
+msgstr ""
+
+msgid "Helio-PAT"
 msgstr ""
 
 msgid "About Helio"
@@ -7571,17 +7594,8 @@ msgstr "Maliyet %dg filament ve %d optimum gruplamadan daha fazla değişir."
 msgid "nozzle"
 msgstr "nozul"
 
-msgid "extruder"
-msgstr "ekstruder"
-
 msgid "both extruders"
 msgstr "her iki ekstruder"
-
-msgid "right extruder"
-msgstr "sağ ekstruder"
-
-msgid "left extruder"
-msgstr "sol ekstruder"
 
 msgid "Tips: If you changed your nozzle of your printer lately, Please go to 'Device -> Printer parts' to change your nozzle setting."
 msgstr "İpuçları: Yazıcınızın nozülünü yakın zamanda değiştirdiyseniz, nozül ayarınızı değiştirmek için lütfen 'Cihaz -> Yazıcı parçaları' bölümüne gidin."
@@ -9100,7 +9114,7 @@ msgstr ""
 msgid "Agree"
 msgstr ""
 
-msgid "Helio settings"
+msgid "Helio Additive"
 msgstr ""
 
 msgid "Chamber temperature"
@@ -9110,6 +9124,12 @@ msgid "Note: Please set the above temperature according to the actual situation.
 msgstr ""
 
 msgid "How to use Helio"
+msgstr ""
+
+msgid "Failed to obtain Helio PAT. The number of issued PATs has reached the upper limit. Please pay attention to the information on the Helio official website. Click Refresh to get it again once it is available."
+msgstr ""
+
+msgid "Click for more details"
 msgstr ""
 
 msgid "Air Pump"
@@ -9438,6 +9458,9 @@ msgstr "Yüksek sıcaklıklı ve düşük sıcaklıklı filamentlerin birlikte y
 msgid "Printing high-temp and low-temp filaments together may cause nozzle clogging or printer damage. If you still want to print, you can enable the option in Preferences."
 msgstr "Yüksek sıcaklıklı ve düşük sıcaklıklı filamentlerin birlikte yazdırılması nozül tıkanmasına veya yazıcı hasarına neden olabilir. Yine de yazdırmak istiyorsanız, Tercihler'de seçeneği etkinleştirebilirsiniz."
 
+msgid "Printing different-temp filaments together may cause nozzle clogging or printer damage."
+msgstr ""
+
 msgid "Printing high-temp and mid-temp filaments together may cause nozzle clogging or printer damage."
 msgstr "Yüksek sıcaklık ve orta sıcaklık filamentlerinin birlikte yazdırılması nozül tıkanmasına veya yazıcı hasarına neden olabilir."
 
@@ -9451,6 +9474,15 @@ msgid "Smooth mode of timelapse is not supported when \"by object\" sequence is 
 msgstr "\"Nesneye göre\" dizisi etkinleştirildiğinde, hızlandırılmış çekimin yumuşak modu desteklenmez."
 
 msgid "Clumping detection is not supported when \"by object\" sequence is enabled."
+msgstr ""
+
+msgid "enable_wrapping_detection"
+msgstr ""
+
+msgid "Prime tower is required for clumping detection; otherwise, there may be flaws on the model."
+msgstr ""
+
+msgid "enable_prime_tower"
 msgstr ""
 
 msgid "Please select \"By object\" print sequence to print multiple objects in spiral vase mode."
@@ -10057,8 +10089,8 @@ msgstr "Küçük çevre (perimeter)"
 msgid "This setting will affect the speed of perimeters having radius <= small perimeter threshold(usually holes). If expressed as percentage (for example: 80%) it will be calculated onthe outer wall speed setting above. Set to zero for auto."
 msgstr "Bu ayar, yarıçapı <= küçük çevre eşiğine (genellikle delikler) sahip çevrelerin hızını etkileyecektir. Yüzde olarak ifade edilirse (örneğin: %80) yukarıdaki dış duvar hızı ayarı üzerinden hesaplanacaktır. Otomatik için sıfır olarak ayarlayın."
 
-msgid "Small perimter threshold"
-msgstr "Küçük perimter eşiği"
+msgid "Small perimeter threshold"
+msgstr ""
 
 msgid "This sets the threshold for small perimeter length. Default threshold is 0mm"
 msgstr "Bu, küçük çevre uzunluğu için eşiği belirler. Varsayılan eşik 0 mm'dir"
@@ -10616,6 +10648,12 @@ msgid "Clumping detection layers"
 msgstr ""
 
 msgid "Clumping detection layers."
+msgstr ""
+
+msgid "Probing exclude area of clumping"
+msgstr ""
+
+msgid "Probing exclude area of clumping."
 msgstr ""
 
 msgid "Thumbnail size"
@@ -13646,6 +13684,42 @@ msgstr "Mukavemete öncelik veren 0,8 mm nozul için mukavemet profili."
 msgid "Standard profile for 0.8mm nozzle, prioritizing speed."
 msgstr "Hıza öncelik veren 0,8 mm nozul için standart profil."
 
+msgid "Helio: Process Started"
+msgstr ""
+
+msgid "Helio API endpoint is empty, please check the configuration."
+msgstr ""
+
+msgid "Personal assecc token is empty, please fill in the correct token."
+msgstr ""
+
+msgid "Helio: Presigned URL Created"
+msgstr ""
+
+msgid "Helio: file succesfully uploaded"
+msgstr ""
+
+msgid "Helio: file upload failed"
+msgstr ""
+
+msgid "Please make sure you have the corrent API key set in preferences."
+msgstr ""
+
+msgid "Helio: GCode created successfully"
+msgstr ""
+
+msgid "Helio: simulation successfully created"
+msgstr ""
+
+msgid "Helio: simulation working"
+msgstr ""
+
+msgid "Helio: simulation failed"
+msgstr ""
+
+msgid "Helio: GCode downloaded successfully"
+msgstr ""
+
 msgid "No AMS"
 msgstr "AMS Yok"
 
@@ -14146,6 +14220,33 @@ msgid ""
 msgstr ""
 "Eğilmeyi önleyin\n"
 "ABS gibi bükülmeye yatkın malzemelere baskı yaparken, ısıtma yatağı sıcaklığının uygun şekilde arttırılmasının bükülme olasılığını azaltabileceğini biliyor muydunuz."
+
+#~ msgid "Open Preferences."
+#~ msgstr "Tercihler'i açın."
+
+#~ msgid "Open next tip."
+#~ msgstr "Sonraki ipucunu açın."
+
+#~ msgid "Open Documentation in web browser."
+#~ msgstr "Belgeleri web tarayıcısında açın."
+
+#~ msgid "Spiral mode only works when wall loops is 1, support is disabled, top shell layers is 0, sparse infill density is 0, timelapse type is traditional and smoothing wall speed in z direction is false."
+#~ msgstr "Spiral modu yalnızca duvar döngüleri 1, destek devre dışı, üst kabuk katmanları 0, seyrek dolgu yoğunluğu 0, zaman atlamalı tip geleneksel ve z yönünde duvar hızını yumuşatma yanlış olduğunda çalışır."
+
+#~ msgid "Fatal"
+#~ msgstr "Kritik"
+
+#~ msgid "Serious"
+#~ msgstr "Ciddi"
+
+#~ msgid "Common"
+#~ msgstr "Yaygın"
+
+#~ msgid "Stop Buzzer"
+#~ msgstr "Uyarı Sesini Durdur"
+
+#~ msgid "Small perimter threshold"
+#~ msgstr "Küçük perimter eşiği"
 
 #~ msgid "Automatic calibration only supports cases where the left and right nozzle diameters are identical."
 #~ msgstr "Otomatik kalibrasyon yalnızca sol ve sağ nozul çaplarının aynı olduğu durumları destekler."

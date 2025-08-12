@@ -1,6 +1,6 @@
 //**********************************************************/
 /* File: uiAmsHumidityPopup.h
-*  Description: The popup with Ams Humidity
+*  Description: The popup with DevAms Humidity
 *
 *  \n class uiAmsHumidityPopup
 //**********************************************************/
@@ -21,14 +21,14 @@ struct uiAmsHumidityInfo
 {
     std::string ams_id;
     AMSModel ams_type;
-    int humidity_level = -1;
+    int humidity_display_idx = -1;
     int humidity_percent = -1;
     float current_temperature;
     int left_dry_time = -1;
 };
 
 /// </summary>
-/// Note: The popup of Ams Humidity with percentage and dry time
+/// Note: The popup of DevAms Humidity with percentage and dry time
 /// Author: xin.zhang
 /// </summary>
 class uiAmsPercentHumidityDryPopup : public wxDialog
@@ -38,7 +38,7 @@ public:
     ~uiAmsPercentHumidityDryPopup() = default;
 
 public:
-    void Update(uiAmsHumidityInfo *info) { m_ams_id = info->ams_id; Update(info->humidity_level, info->humidity_percent, info->left_dry_time, info->current_temperature); };
+    void Update(uiAmsHumidityInfo *info) { m_ams_id = info->ams_id; Update(info->humidity_display_idx, info->humidity_percent, info->left_dry_time, info->current_temperature); };
 
     std::string get_owner_ams_id() const { return m_ams_id; }
 

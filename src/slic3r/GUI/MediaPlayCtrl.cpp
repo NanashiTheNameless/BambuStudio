@@ -148,18 +148,20 @@ MediaPlayCtrl::~MediaPlayCtrl()
     while (!m_thread.try_join_for(boost::chrono::milliseconds(10))) {
         wxEventLoopBase::GetActive()->Yield();
     }
+
+    BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ": " << this;
 }
 
 void MediaPlayCtrl::SetMachineObject(MachineObject* obj)
 {
-    std::string machine = obj ? obj->dev_id : "";
+    std::string machine = obj ? obj->get_dev_id() : "";
     if (obj) {
         m_camera_exists  = obj->has_ipcam;
         m_dev_ver        = obj->get_ota_version();
         m_lan_mode       = obj->is_lan_mode_printer();
         m_lan_proto      = obj->liveview_local;
         m_remote_proto   = obj->get_liveview_remote();
-        m_lan_ip         = obj->dev_ip;
+        m_lan_ip         = obj->get_dev_ip();
         m_lan_passwd     = obj->get_access_code();
         m_device_busy    = obj->is_camera_busy_off();
         m_tutk_state     = obj->tutk_state;
@@ -360,7 +362,12 @@ void MediaPlayCtrl::Play()
     if (agent) {
         std::string protocols[] = {"", "\"tutk\"", "\"agora\"", "\"tutk\",\"agora\""};
         agent->get_camera_url(m_machine + "|" + m_dev_ver + "|" + protocols[m_remote_proto],
-                [this, m = m_machine, v = agent_version, dv = m_dev_ver](std::string url) {
+                [this, m = m_machine, v = agent_version, dv = m_dev_ver, token = std::weak_ptr(m_token)](std::string url) {
+            if (token.expired()) {
+                BOOST_LOG_TRIVIAL(info) << __FUNCTION__ << ": token has been expired";
+                return;
+            }
+
             if (boost::algorithm::starts_with(url, "bambu:///")) {
                 url += "&device=" + into_u8(m);
                 url += "&net_ver=" + v;

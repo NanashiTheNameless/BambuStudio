@@ -883,7 +883,7 @@ bool PresetBundle::import_json_presets(PresetsConfigSubstitutions &            s
                                      << ", which were removed";
         if (!config_substitutions.empty())
             substitutions.push_back({name, collection->type(), PresetConfigSubstitutions::Source::UserFile, file, std::move(config_substitutions)});
-
+        collection->set_custom_preset_alias(preset);
         preset.save(inherit_preset ? &inherit_preset->config : nullptr);
         result.push_back(file);
     } catch (const std::ifstream::failure &err) {
@@ -4347,7 +4347,7 @@ void PresetBundle::update_multi_material_filament_presets(size_t to_delete_filam
         f_multiplier.resize(nozzle_nums, 1.f);
     }
 
-    if (num_filaments != old_number_of_filaments) {
+    if ( (num_filaments * num_filaments) != size_t(old_matrix.size() / old_nozzle_nums) ) {
         // First verify if purging volumes presets for each extruder matches number of extruders
         std::vector<double>& filaments = this->project_config.option<ConfigOptionFloats>("flush_volumes_vector")->values;
         while (filaments.size() < 2* num_filaments) {

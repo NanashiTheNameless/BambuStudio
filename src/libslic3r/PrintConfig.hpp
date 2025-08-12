@@ -17,6 +17,7 @@
 #define slic3r_PrintConfig_hpp_
 
 #include "libslic3r.h"
+#include "CommonDefs.hpp"
 #include "Config.hpp"
 #include "Polygon.hpp"
 #include <boost/preprocessor/facilities/empty.hpp>
@@ -257,16 +258,6 @@ enum class ExtruderOnlyAreaType:unsigned char {
 enum LayerSeq {
     flsAuto,
     flsCutomize
-};
-
-// BBS
-enum NozzleType {
-    ntUndefine = 0,
-    ntHardenedSteel,
-    ntStainlessSteel,
-    ntTungstenCarbide,
-    ntBrass,
-    ntCount
 };
 
 static std::unordered_map<NozzleType, std::string>NozzleTypeEumnToStr = {
@@ -1090,7 +1081,7 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionBool,                scan_first_layer))
     ((ConfigOptionBool,                enable_wrapping_detection))
     ((ConfigOptionInt,                 wrapping_detection_layers))
-    ((ConfigOptionPoints,              wrapping_detection_path))
+    ((ConfigOptionPoints,              wrapping_exclude_area))
     ((ConfigOptionPoints,              thumbnail_size))
     // ((ConfigOptionBool,                spaghetti_detector))
     ((ConfigOptionBool,                gcode_add_line_number))

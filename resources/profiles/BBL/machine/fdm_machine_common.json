@@ -34,7 +34,6 @@
     "extruder_offset": [
         "0x0"
     ],
-    "enable_wrapping_detection": "0",
     "gcode_flavor": "marlin",
     "grab_length": [
         "0"
@@ -144,6 +143,7 @@
     "wipe": [
         "1"
     ],
+    "wrapping_exclude_area": [],
     "z_hop": [
         "0"
     ],

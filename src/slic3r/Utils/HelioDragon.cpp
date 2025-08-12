@@ -44,10 +44,10 @@ void HelioQuery::request_support_machine(const std::string helio_api_url, const 
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([url_copy, key_copy, page_copy](std::string body, unsigned status) {
-            nlohmann::json                         parsed_obj = nlohmann::json::parse(body);
-            std::vector<HelioQuery::SupportedData> supported_printers;
-
+            BOOST_LOG_TRIVIAL(info) << "request_support_machine" << body;
             try {
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                std::vector<HelioQuery::SupportedData> supported_printers;
                 if (parsed_obj.contains("data") && parsed_obj["data"].contains("printers")) {
                     auto materials = parsed_obj["data"]["printers"];
                     if (materials.contains("objects") && materials["objects"].is_array()) {
@@ -103,10 +103,10 @@ void HelioQuery::request_support_material(const std::string helio_api_url, const
         .timeout_max(100)
         .on_complete([url_copy, key_copy, page_copy](std::string body, unsigned status) {
             BOOST_LOG_TRIVIAL(info) << "request_support_material" << body;
-            nlohmann::json                         parsed_obj = nlohmann::json::parse(body);
-            std::vector<HelioQuery::SupportedData> supported_materials;
-
             try {
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                std::vector<HelioQuery::SupportedData> supported_materials;
+
                 if (parsed_obj.contains("data") && parsed_obj["data"].contains("materials")) {
                     auto materials = parsed_obj["data"]["materials"];
                     if (materials.contains("objects") && materials["objects"].is_array()) {
@@ -181,7 +181,8 @@ void HelioQuery::request_pat_token(std::function<void(std::string)> func)
 
     if (GUI::wxGetApp().app_config->get("region") == "China") {
         url_copy = "https://api.helioam.cn/rest/auth/anonymous_token/bambustudio";
-    } else {
+    }
+    else {
         url_copy = "https://api.helioadditive.com/rest/auth/anonymous_token/bambustudio";
     }
 
@@ -189,23 +190,36 @@ void HelioQuery::request_pat_token(std::function<void(std::string)> func)
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([url_copy, func](std::string body, unsigned status) {
-            nlohmann::json parsed_obj = nlohmann::json::parse(body);
+        //success
+        if (status == 200) {
             try {
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
                 if (parsed_obj.contains("pat") && parsed_obj["pat"].is_string()) {
                     func(parsed_obj["pat"].get<std::string>());
                 }
                 else {
-                    func("");
+                    func("error");
                 }
 
-            } catch (...) {}
-        })
+            }
+            catch (...) {}
+        }
+        else if (status == 429) {
+            func("not_enough");
+        }
+            })
         .on_error([func](std::string body, std::string error, unsigned status) {
-            func("");
-            // BOOST_LOG_TRIVIAL(info) << (boost::format("error: %1%, message: %2%") % error % body).str()
-        })
+        if (status == 429) {
+            func("not_enough");
+        }
+        else {
+            func("error");
+        }
+        //BOOST_LOG_TRIVIAL(info) << (boost::format("request pat token error: %1%, message: %2%") % error % body).str());
+            })
         .perform();
 }
+
 
 HelioQuery::PresignedURLResult HelioQuery::create_presigned_url(const std::string helio_api_url, const std::string helio_api_key)
 {
@@ -224,15 +238,19 @@ HelioQuery::PresignedURLResult HelioQuery::create_presigned_url(const std::strin
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([&res](std::string body, unsigned status) {
-            nlohmann::json parsed_obj = nlohmann::json::parse(body);
-            res.status                = status;
-            if (parsed_obj.contains("error")) {
-                res.error = parsed_obj["error"];
-            } else {
-                res.key      = parsed_obj["data"]["getPresignedUrl"]["key"];
-                res.mimeType = parsed_obj["data"]["getPresignedUrl"]["mimeType"];
-                res.url      = parsed_obj["data"]["getPresignedUrl"]["url"];
+            try{
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                res.status = status;
+                if (parsed_obj.contains("error")) {
+                    res.error = parsed_obj["error"];
+                }
+                else {
+                    res.key = parsed_obj["data"]["getPresignedUrl"]["key"];
+                    res.mimeType = parsed_obj["data"]["getPresignedUrl"]["mimeType"];
+                    res.url = parsed_obj["data"]["getPresignedUrl"]["url"];
+                }
             }
+            catch (...){}
         })
         .on_error([&res](std::string body, std::string error, unsigned status) {
             res.error  = (boost::format("error: %1%, message: %2%") % error % body).str();
@@ -301,43 +319,48 @@ HelioQuery::CreateGCodeResult HelioQuery::create_gcode(const std::string key,
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([&res](std::string body, unsigned status) {
-            nlohmann::json parsed_obj = nlohmann::json::parse(body);
-            res.status                = status;
-            if (parsed_obj.contains("errors")) {
-                res.error   = parsed_obj["errors"].dump();
-                res.success = false;
-            } else {
 
-                if (!parsed_obj["data"]["createGcode"]["gcode"].is_null()) {
-                    res.success = true;
-                    res.id      = parsed_obj["data"]["createGcode"]["gcode"]["id"];
-                    res.name    = parsed_obj["data"]["createGcode"]["gcode"]["name"];
-                } else {
+            try{
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                res.status = status;
+                if (parsed_obj.contains("errors")) {
+                    res.error = parsed_obj["errors"].dump();
                     res.success = false;
-                    res.error   = "";
-                    for (const auto& err : parsed_obj["data"]["createGcode"]["criticalErrors"]) {
-                        std::string error_msg = err.get<std::string>();
-                        res.error_flags.push_back(error_msg);
+                }
+                else {
 
-                        res.error += " ";
-                        res.error += error_msg;
+                    if (!parsed_obj["data"]["createGcode"]["gcode"].is_null()) {
+                        res.success = true;
+                        res.id = parsed_obj["data"]["createGcode"]["gcode"]["id"];
+                        res.name = parsed_obj["data"]["createGcode"]["gcode"]["name"];
+                    }
+                    else {
+                        res.success = false;
+                        res.error = "";
+                        for (const auto& err : parsed_obj["data"]["createGcode"]["criticalErrors"]) {
+                            std::string error_msg = err.get<std::string>();
+                            res.error_flags.push_back(error_msg);
+
+                            res.error += " ";
+                            res.error += error_msg;
+                        }
+
+                        for (const auto& err : parsed_obj["data"]["createGcode"]["criticalErrors"]) {
+                            std::string error_msg = err.get<std::string>();
+                            res.error_flags.push_back(error_msg);
+
+                            res.error += " ";
+                            res.error += error_msg;
+                        }
                     }
 
-                    for (const auto& err : parsed_obj["data"]["createGcode"]["criticalErrors"]) {
+                    for (const auto& err : parsed_obj["data"]["createGcode"]["warnings"]) {
                         std::string error_msg = err.get<std::string>();
-                        res.error_flags.push_back(error_msg);
-
-                        res.error += " ";
-                        res.error += error_msg;
+                        res.warning_flags.push_back(error_msg);
                     }
                 }
-
-				for (const auto& err : parsed_obj["data"]["createGcode"]["warnings"]) {
-					std::string error_msg = err.get<std::string>();
-					res.warning_flags.push_back(error_msg);
-				}
-
             }
+            catch (...){}
         })
         .on_error([&res](std::string body, std::string error, unsigned status) {
             res.success = false;
@@ -423,16 +446,21 @@ HelioQuery::CreateSimulationResult HelioQuery::create_simulation(const std::stri
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([&res](std::string body, unsigned status) {
-            nlohmann::json parsed_obj = nlohmann::json::parse(body);
-            res.status                = status;
-            if (parsed_obj.contains("errors")) {
-                res.error   = parsed_obj["errors"].dump();
-                res.success = false;
-            } else {
-                res.success = true;
-                res.id      = parsed_obj["data"]["createSimulation"]["id"];
-                res.name    = parsed_obj["data"]["createSimulation"]["name"];
+            
+            try{
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                res.status = status;
+                if (parsed_obj.contains("errors")) {
+                    res.error = parsed_obj["errors"].dump();
+                    res.success = false;
+                }
+                else {
+                    res.success = true;
+                    res.id = parsed_obj["data"]["createSimulation"]["id"];
+                    res.name = parsed_obj["data"]["createSimulation"]["name"];
+                }
             }
+            catch (...){}
         })
         .on_error([&res](std::string body, std::string error, unsigned status) {
             res.success = false;
@@ -465,18 +493,22 @@ HelioQuery::CheckSimulationProgressResult HelioQuery::check_simulation_progress(
     http.timeout_connect(20)
         .timeout_max(100)
         .on_complete([&res](std::string body, unsigned status) {
-            nlohmann::json parsed_obj = nlohmann::json::parse(body);
-            res.status                = status;
-            if (parsed_obj.contains("errors")) {
-                res.error = parsed_obj["errors"].dump();
-            } else {
-                res.id          = parsed_obj["data"]["simulation"]["id"];
-                res.name        = parsed_obj["data"]["simulation"]["name"];
-                res.progress    = parsed_obj["data"]["simulation"]["progress"];
-                res.is_finished = parsed_obj["data"]["simulation"]["status"] == "FINISHED";
-                if (res.is_finished)
-                    res.url = parsed_obj["data"]["simulation"]["thermalIndexGcodeUrl"];
+            try{
+                nlohmann::json parsed_obj = nlohmann::json::parse(body);
+                res.status = status;
+                if (parsed_obj.contains("errors")) {
+                    res.error = parsed_obj["errors"].dump();
+                }
+                else {
+                    res.id = parsed_obj["data"]["simulation"]["id"];
+                    res.name = parsed_obj["data"]["simulation"]["name"];
+                    res.progress = parsed_obj["data"]["simulation"]["progress"];
+                    res.is_finished = parsed_obj["data"]["simulation"]["status"] == "FINISHED";
+                    if (res.is_finished)
+                        res.url = parsed_obj["data"]["simulation"]["thermalIndexGcodeUrl"];
+                }
             }
+            catch (...){}
         })
         .on_error([&res](std::string body, std::string error, unsigned status) {
             res.error  = error;
@@ -515,7 +547,7 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
         !was_canceled()) {
         wxPostEvent(GUI::wxGetApp().plater(), GUI::SimpleEvent(GUI::EVT_HELIO_PROCESSING_STARTED));
 
-        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(0.0, "Helio: Process Started");
+        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(0.0, _u8L("Helio: Process Started"));
         Slic3r::SlicingStatusEvent*      evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
         wxQueueEvent(GUI::wxGetApp().plater(), evt);
 
@@ -525,7 +557,7 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
         if (helio_api_url.empty()) {
             set_state(STATE_CANCELED);
             Slic3r::HelioCompletionEvent *evt = new Slic3r::HelioCompletionEvent(GUI::EVT_HELIO_PROCESSING_COMPLETED, 0, "", "", false,
-                _L("Helio API endpoint is empty, please check the configuration.").ToStdString());
+                _u8L("Helio API endpoint is empty, please check the configuration."));
             wxQueueEvent(GUI::wxGetApp().plater(), evt);
             return;
         }
@@ -534,7 +566,7 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
         if (helio_origin_key.empty()) {
             set_state(STATE_CANCELED);
             Slic3r::HelioCompletionEvent *evt = new Slic3r::HelioCompletionEvent(GUI::EVT_HELIO_PROCESSING_COMPLETED, 0, "", "", false,
-                _L("Personal assecc token is empty, please fill in the correct token.").ToStdString());
+                _u8L("Personal assecc token is empty, please fill in the correct token."));
             wxQueueEvent(GUI::wxGetApp().plater(), evt);
             return;
         }
@@ -542,7 +574,7 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
         HelioQuery::PresignedURLResult create_presigned_url_res = HelioQuery::create_presigned_url(helio_api_url, helio_api_key);
 
         if (create_presigned_url_res.error.empty() && create_presigned_url_res.status == 200 && !was_canceled()) {
-            status = Slic3r::PrintBase::SlicingStatus(5, "Helio: Presigned URL Created");
+            status = Slic3r::PrintBase::SlicingStatus(5, _u8L("Helio: Presigned URL Created"));
             evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
             wxQueueEvent(GUI::wxGetApp().plater(), evt);
 
@@ -550,7 +582,7 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
                                                                                                     create_presigned_url_res.url);
 
             if (upload_file_res.success && !was_canceled()) {
-                status = Slic3r::PrintBase::SlicingStatus(10, "Helio: file succesfully uploaded");
+                status = Slic3r::PrintBase::SlicingStatus(10, _u8L("Helio: file succesfully uploaded"));
                 evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
                 wxQueueEvent(GUI::wxGetApp().plater(), evt);
 
@@ -563,14 +595,15 @@ void HelioBackgroundProcess::helio_threaded_process_start(std::mutex&           
                 set_state(STATE_CANCELED);
 
                 Slic3r::HelioCompletionEvent* evt = new Slic3r::HelioCompletionEvent(GUI::EVT_HELIO_PROCESSING_COMPLETED, 0, "", "", false,
-                                                                                     "Helio: file upload failed");
+                                                                                     _u8L("Helio: file upload failed"));
                 wxQueueEvent(GUI::wxGetApp().plater(), evt);
             }
         } else {
             std::string presigned_url_message = (boost::format("error: %1%") % create_presigned_url_res.error).str();
 
             if (create_presigned_url_res.status == 401) {
-                presigned_url_message += "\n Please make sure you have the corrent API key set in preferences.";
+                presigned_url_message += "\n ";
+                presigned_url_message += _u8L("Please make sure you have the corrent API key set in preferences.");
             }
 
             set_state(STATE_CANCELED);
@@ -588,7 +621,7 @@ void HelioBackgroundProcess::create_simulation_step(HelioQuery::CreateGCodeResul
                                                     std::unique_ptr<GUI::NotificationManager>& notification_manager)
 {
     if (create_gcode_res.success && !was_canceled()) {
-        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(15, "Helio: GCode created successfully");
+        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(15, _u8L("Helio: GCode created successfully"));
         Slic3r::SlicingStatusEvent*      evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
         wxQueueEvent(GUI::wxGetApp().plater(), evt);
 
@@ -611,7 +644,7 @@ void HelioBackgroundProcess::create_simulation_step(HelioQuery::CreateGCodeResul
                                                                                                  chamber_temp);
 
         if (create_simulation_res.success && !was_canceled()) {
-            status = Slic3r::PrintBase::SlicingStatus(20, "Helio: simulation successfully created");
+            status = Slic3r::PrintBase::SlicingStatus(20, _u8L("Helio: simulation successfully created"));
             evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
             wxQueueEvent(GUI::wxGetApp().plater(), evt);
 
@@ -633,7 +666,7 @@ void HelioBackgroundProcess::create_simulation_step(HelioQuery::CreateGCodeResul
                         }
 
                         status = Slic3r::PrintBase::SlicingStatus(35 + (80 - 35) * check_simulation_progress_res.progress,
-                                                                  "Helio: simulation working" + trailing_dots);
+                                                                  _u8L("Helio: simulation working") + trailing_dots);
                         evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
                         wxQueueEvent(GUI::wxGetApp().plater(), evt);
                         if (check_simulation_progress_res.is_finished) {
@@ -650,7 +683,7 @@ void HelioBackgroundProcess::create_simulation_step(HelioQuery::CreateGCodeResul
                         set_state(STATE_CANCELED);
 
                         Slic3r::HelioCompletionEvent* evt = new Slic3r::HelioCompletionEvent(GUI::EVT_HELIO_PROCESSING_COMPLETED, 0, "", "",
-                                                                                             false, "Helio: simulation failed");
+                                                                                             false, _u8L("Helio: simulation failed"));
                         wxQueueEvent(GUI::wxGetApp().plater(), evt);
                         break;
                     }
@@ -750,11 +783,11 @@ void HelioBackgroundProcess::save_downloaded_gcode_and_load_preview(std::string 
     }
 
     if (response_error.empty() && !was_canceled()) {
-        FILE* file = fopen(simulated_gcode_path.c_str(), "w");
+        FILE* file = fopen(simulated_gcode_path.c_str(), "wb");
         fwrite(downloaded_gcode.c_str(), 1, downloaded_gcode.size(), file);
         fclose(file);
 
-        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(100, "Helio: GCode downloaded successfully");
+        Slic3r::PrintBase::SlicingStatus status = Slic3r::PrintBase::SlicingStatus(100, _u8L("Helio: GCode downloaded successfully"));
         Slic3r::SlicingStatusEvent*      evt    = new Slic3r::SlicingStatusEvent(GUI::EVT_SLICING_UPDATE, 0, status);
         wxQueueEvent(GUI::wxGetApp().plater(), evt);
         HelioBackgroundProcess::load_simulation_to_viwer(simulated_gcode_path, tmp_path);

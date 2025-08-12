@@ -12,7 +12,6 @@
 #include "Widgets/RoundedRectangle.hpp"
 #include "Widgets/StaticBox.hpp"
 #include "Widgets/WebView.hpp"
-#include "Widgets/LinkLabel.hpp"
 
 #include <wx/regex.h>
 #include <wx/progdlg.h>
@@ -23,6 +22,9 @@
 #include <algorithm>
 #include "Plater.hpp"
 #include "BitmapCache.hpp"
+
+#include "DeviceCore/DevManager.h"
+#include "DeviceCore/DevStorage.h"
 
 namespace Slic3r { namespace GUI {
 
@@ -1062,17 +1064,31 @@ void PrintErrorDialog::update_title_style(wxString title, std::vector<int> butto
             m_button_list[used_button_id]->Hide();
         }
     }
+
     m_sizer_button->Clear();
     m_used_button = button_style;
+    bool need_remove_close_btn = false;
     for (int button_id : button_style) {
         if (m_button_list.find(button_id) != m_button_list.end()) {
             m_sizer_button->Add(m_button_list[button_id], 0, wxALL, FromDIP(5));
             m_button_list[button_id]->Show();
         }
+
+        need_remove_close_btn |= (button_id == REMOVE_CLOSE_BTN); // special case, do not show close button
     }
+
+    // Special case, do not show close button
+    if (need_remove_close_btn)
+    {
+        SetWindowStyle(GetWindowStyle() & ~wxCLOSE_BOX);
+    }
+    else
+    {
+        SetWindowStyle(GetWindowStyle() | wxCLOSE_BOX);
+    }
+
     Layout();
     Fit();
-
 }
 
 void PrintErrorDialog::init_button(PrintErrorButton style,wxString buton_text)
@@ -1114,7 +1130,7 @@ void PrintErrorDialog::init_button_list()
     init_button(IGNORE_NO_REMINDER_NEXT_TIME, _L("Ignore. Don't Remind Next Time"));
     init_button(IGNORE_RESUME, _L("Ignore this and Resume"));
     init_button(PROBLEM_SOLVED_RESUME, _L("Problem Solved and Resume"));
-    init_button(STOP_BUZZER, _L("Stop Buzzer"));
+    init_button(TURN_OFF_FIRE_ALARM, _L("Got it, Turn off the Fire Alarm."));
     init_button(RETRY_PROBLEM_SOLVED, _L("Retry (problem solved)"));
     init_button(STOP_DRYING, _L("Stop Drying"));
 }
@@ -1573,9 +1589,9 @@ InputIpAddressDialog::InputIpAddressDialog(wxWindow *parent)
     m_input_modelID->SetMinSize(wxSize(FromDIP(168), FromDIP(28)));
     m_input_modelID->SetMaxSize(wxSize(FromDIP(168), FromDIP(28)));
 
-    m_models_map = DeviceManager::get_all_model_id_with_name();
+    m_models_map = DevPrinterConfigUtil::get_all_model_id_with_name();
     for (auto it = m_models_map.begin(); it != m_models_map.end(); ++it) {
-        m_input_modelID->Append(it->right);
+        m_input_modelID->Append(it->first);
         m_input_modelID->SetSelection(0);
     }
 
@@ -1800,10 +1816,10 @@ void InputIpAddressDialog::update_title(wxString title)
 void InputIpAddressDialog::set_machine_obj(MachineObject* obj)
 {
     m_obj = obj;
-    m_input_ip->GetTextCtrl()->SetLabelText(m_obj->dev_ip);
+    m_input_ip->GetTextCtrl()->SetLabelText(m_obj->get_dev_ip());
     m_input_access_code->GetTextCtrl()->SetLabelText(m_obj->get_access_code());
 
-    std::string img_str = DeviceManager::get_printer_diagram_img(m_obj->printer_type);
+    std::string img_str = DevPrinterConfigUtil::get_printer_connect_help_img(m_obj->printer_type);
     auto diagram_bmp = create_scaled_bitmap(img_str + "_en", this, 198);
     m_img_help->SetBitmap(diagram_bmp);
 
@@ -1883,9 +1899,9 @@ void InputIpAddressDialog::on_ok(wxMouseEvent& evt)
     std::string str_sn = m_input_sn->GetTextCtrl()->GetValue().ToStdString();
     std::string str_model_id = "";
 
-    auto it = m_models_map.right.find(m_input_modelID->GetStringSelection().ToStdString());
-    if (it != m_models_map.right.end()) {
-        str_model_id = it->get_left();
+    auto it = m_models_map.find(m_input_modelID->GetStringSelection().ToStdString());
+    if (it != m_models_map.end()) {
+        str_model_id = it->second;
     }
 
     m_button_ok->Enable(false);
@@ -1946,7 +1962,7 @@ void InputIpAddressDialog::on_send_retry()
         }
     });
 
-    m_send_job                = std::make_shared<SendJob>(m_status_bar, wxGetApp().plater(), m_obj->dev_id);
+    m_send_job                = std::make_shared<SendJob>(m_status_bar, wxGetApp().plater(), m_obj->get_dev_id());
     m_send_job->m_dev_ip      = ip.ToStdString();
     m_send_job->m_access_code = str_access_code.ToStdString();
 
@@ -1960,7 +1976,7 @@ void InputIpAddressDialog::on_send_retry()
 
     m_send_job->connection_type  = m_obj->connection_type();
     m_send_job->cloud_print_only = true;
-    m_send_job->has_sdcard       = m_obj->get_sdcard_state() == MachineObject::SdcardState::HAS_SDCARD_NORMAL;
+    m_send_job->has_sdcard       = m_obj->GetStorage()->get_sdcard_state() == DevStorage::SdcardState::HAS_SDCARD_NORMAL;
     m_send_job->set_check_mode();
     m_send_job->set_project_name("verify_job");
 
@@ -2062,14 +2078,16 @@ void InputIpAddressDialog::workerThreadFunc(std::string str_ip, std::string str_
 
 
     DeviceManager* dev = wxGetApp().getDeviceManager();
-    m_obj = dev->insert_local_device(detectData.dev_name, detectData.dev_id, str_ip, detectData.connect_type, detectData.bind_state, detectData.version, str_access_code);
+    m_obj = dev->insert_local_device(detectData.dev_name, detectData.dev_id, str_ip,
+        detectData.connect_type, detectData.bind_state, detectData.version,
+        str_access_code, detectData.model_id);
 
 
     if (w.expired()) return;
 
     if (m_obj) {
         m_obj->set_user_access_code(str_access_code);
-        wxGetApp().getDeviceManager()->set_selected_machine(m_obj->dev_id);
+        wxGetApp().getDeviceManager()->set_selected_machine(m_obj->get_dev_id());
     }
 
 
@@ -2437,7 +2455,7 @@ void HelioStatementDialog::on_dpi_changed(const wxRect &suggested_rect)
 }
 
  HelioInputDialog::HelioInputDialog(wxWindow *parent /*= nullptr*/)
-    : DPIDialog(static_cast<wxWindow *>(wxGetApp().mainframe), wxID_ANY, _L("Helio settings"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX)
+    : DPIDialog(static_cast<wxWindow *>(wxGetApp().mainframe), wxID_ANY, _L("Helio Additive"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX)
 {
     SetBackgroundColour(*wxWHITE);
 
@@ -2575,5 +2593,67 @@ bool HelioInputDialog::is_number_regex(const wxString &str, double &value)
 }
 
 void HelioInputDialog::on_dpi_changed(const wxRect &suggested_rect) {}
+
+
+HelioPatNotEnoughDialog::HelioPatNotEnoughDialog(wxWindow* parent /*= nullptr*/)
+    : DPIDialog(static_cast<wxWindow*>(wxGetApp().mainframe), wxID_ANY, wxString("Helio Additive"), wxDefaultPosition, wxDefaultSize, wxCAPTION | wxCLOSE_BOX)
+{
+    SetBackgroundColour(*wxWHITE);
+
+    wxBoxSizer* main_sizer = new wxBoxSizer(wxVERTICAL);
+    wxPanel* line = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 1), wxTAB_TRAVERSAL);
+    line->SetBackgroundColour(wxColour(166, 169, 170));
+
+    Label* text = new Label(this, Label::Body_13, _L("Failed to obtain Helio PAT. The number of issued PATs has reached the upper limit. Please pay attention to the information on the Helio official website. Click Refresh to get it again once it is available."), LB_AUTO_WRAP);
+    text->SetForegroundColour(wxColour("#6C6C6C"));
+    text->SetMinSize(wxSize(FromDIP(450), -1));
+    text->SetMaxSize(wxSize(FromDIP(450), -1));
+    text->Wrap(FromDIP(450));
+
+    auto helio_wiki_link = new LinkLabel(this, _L("Click for more details"), wxGetApp().app_config->get("language") == "zh_CN" ? "https://wiki.helioadditive.com/zh/home" : "https://wiki.helioadditive.com/en/home");
+    helio_wiki_link->SeLinkLabelFColour(wxColour(0, 174, 66));
+    helio_wiki_link->Bind(wxEVT_ENTER_WINDOW, [this](auto& e) { SetCursor(wxCURSOR_HAND); });
+    helio_wiki_link->Bind(wxEVT_LEAVE_WINDOW, [this](auto& e) { SetCursor(wxCURSOR_ARROW); });
+
+    StateColor btn_bg_green(std::pair<wxColour, int>(wxColour(27, 136, 68), StateColor::Pressed), std::pair<wxColour, int>(wxColour(61, 203, 115), StateColor::Hovered),
+        std::pair<wxColour, int>(AMS_CONTROL_BRAND_COLOUR, StateColor::Normal));
+
+
+    auto sizer_button = new wxBoxSizer(wxHORIZONTAL);
+    auto m_button_ok = new Button(this, _L("Confirm"));
+    m_button_ok->SetBackgroundColor(btn_bg_green);
+    m_button_ok->SetBorderColor(*wxWHITE);
+    m_button_ok->SetTextColor(wxColour(255, 255, 254));
+    m_button_ok->SetFont(Label::Body_12);
+    m_button_ok->SetSize(wxSize(FromDIP(58), FromDIP(24)));
+    m_button_ok->SetMinSize(wxSize(FromDIP(58), FromDIP(24)));
+    m_button_ok->SetCornerRadius(FromDIP(12));
+
+    sizer_button->AddStretchSpacer();
+    sizer_button->Add(m_button_ok, 0, wxALL, FromDIP(5));
+
+    m_button_ok->Bind(wxEVT_LEFT_DOWN, [this](wxMouseEvent& e) {
+        EndModal(wxID_OK);
+        });
+
+    main_sizer->Add(line, 0, wxEXPAND, 0);
+    main_sizer->Add(0, 0, 0, wxTOP, FromDIP(26));
+    main_sizer->Add(text, 0, wxEXPAND | wxLEFT | wxRIGHT, FromDIP(30));
+    main_sizer->Add(0, 0, 0, wxTOP, FromDIP(15));
+    main_sizer->Add(helio_wiki_link, 0, wxLEFT | wxRIGHT, FromDIP(30));
+    main_sizer->Add(0, 0, 0, wxTOP, FromDIP(15));
+    main_sizer->Add(sizer_button, 0, wxEXPAND | wxLEFT | wxRIGHT, FromDIP(30));
+
+    SetSizer(main_sizer);
+    Layout();
+    Fit();
+}
+
+HelioPatNotEnoughDialog::~HelioPatNotEnoughDialog() {}
+
+void HelioPatNotEnoughDialog::on_dpi_changed(const wxRect& suggested_rect)
+{
+
+}
 
  }} // namespace Slic3r::GUI
